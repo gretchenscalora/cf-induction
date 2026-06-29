@@ -1,0 +1,463 @@
+<!DOCTYPE  html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chislett Farms Induction</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#1a3a1a;color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+:root{--green:#2D6A2D;--green-dark:#1a3a1a;--green-mid:#3a7a3a;--green-light:#e8f5e8;--orange:#E8541A;--amber:#F5A623;--white:#fff;--offwhite:#f7faf7}
+#app{width:100%;max-width:760px;min-height:100vh;display:flex;flex-direction:column;background:#1a3a1a}
+#header{background:#fff;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--orange);flex-shrink:0}
+#logo-area{display:flex;align-items:center;gap:10px}
+#lang-bar{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.lang-btn{background:var(--green-light);border:1.5px solid var(--green);color:var(--green);border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;transition:background 0.2s}
+.lang-btn:hover,.lang-btn.active{background:var(--green);color:#fff}
+.lang-btn.translating{background:var(--amber);color:#fff;border-color:var(--amber)}
+#progress-wrap{background:rgba(255,255,255,0.1);height:4px;width:100%}
+#progress-bar{height:4px;background:var(--orange);transition:width 0.4s ease}
+#scene-area{flex:1;padding:16px 20px;display:flex;flex-direction:column;gap:12px;overflow-y:auto}
+.scene{display:none;flex-direction:column;gap:10px;animation:fadeIn 0.4s ease}
+.scene.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.scene-tag{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--amber)}
+.scene-title{font-size:24px;font-weight:800;color:#fff;line-height:1.2}
+.scene-sub{font-size:14px;color:#b8d8b8;line-height:1.6;max-width:640px}
+.highlight{background:rgba(232,84,26,0.15);border-left:3px solid var(--orange);border-radius:0 8px 8px 0;padding:10px 14px;font-size:13px;color:#ffd4b8;line-height:1.5}
+.tip{background:rgba(245,166,35,0.13);border-left:3px solid var(--amber);border-radius:0 8px 8px 0;padding:10px 14px;font-size:13px;color:#ffe4a0;line-height:1.5}
+.good{background:rgba(45,106,45,0.3);border-left:3px solid #5DCAA5;border-radius:0 8px 8px 0;padding:10px 14px;font-size:13px;color:#b8f0d8;line-height:1.5}
+.rule-list{list-style:none;display:flex;flex-direction:column;gap:7px}
+.rule-list li{display:flex;align-items:flex-start;gap:10px;background:rgba(255,255,255,0.06);border-radius:8px;padding:9px 12px;font-size:13px;color:#e0f0e0;line-height:1.4}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.dg{background:#5DCAA5}.da{background:var(--amber)}.dr{background:#E24B4A}
+.icon-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.icon-card{background:rgba(255,255,255,0.07);border-radius:10px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.icon-card .emoji{font-size:26px;line-height:1}
+.icon-card span{font-size:11px;color:#b8d8b8;font-weight:600}
+.ppe-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ppe-item{background:rgba(255,255,255,0.06);border-radius:10px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.ppe-item .emoji{font-size:26px}
+.ppe-item span{font-size:11px;color:#b8d8b8;font-weight:600;text-align:center}
+.step-list{list-style:none;display:flex;flex-direction:column;gap:7px}
+.step-list li{display:flex;align-items:flex-start;gap:10px;background:rgba(255,255,255,0.06);border-radius:8px;padding:9px 12px;font-size:13px;color:#e0f0e0;line-height:1.4}
+.step-num{width:24px;height:24px;border-radius:50%;background:var(--orange);color:#fff;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.contact-card{background:rgba(255,255,255,0.07);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:4px}
+.contact-card .ctitle{font-size:13px;font-weight:700;color:#fff}
+.contact-card .cdesc{font-size:11px;color:#b8d8b8;line-height:1.4}
+.contact-card .cavatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;margin-bottom:4px}
+.sites-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.site-card{background:rgba(255,255,255,0.07);border-radius:10px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center}
+.site-card .semoji{font-size:22px}
+.site-card .sname{font-size:12px;font-weight:700;color:#fff}
+.site-card .sstate{font-size:10px;color:var(--amber)}
+.finish-check{width:70px;height:70px;border-radius:50%;background:var(--green);border:3px solid #5DCAA5;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:36px}
+.export-btn{align-self:flex-end;background:rgba(245,166,35,0.15);border:1px solid var(--amber);color:var(--amber);border-radius:6px;padding:5px 12px;font-size:11px;cursor:pointer;font-weight:600}
+.export-btn:hover{background:rgba(245,166,35,0.28)}
+#trans-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:100;align-items:center;justify-content:center}
+#trans-overlay.show{display:flex}
+#trans-box{background:#1a3a1a;border:2px solid var(--green);border-radius:14px;padding:20px;max-width:480px;width:90%;max-height:80vh;overflow-y:auto;position:relative}
+#trans-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#b8d8b8;font-size:20px;cursor:pointer}
+#trans-title{font-size:14px;font-weight:700;color:var(--amber);margin-bottom:10px}
+#trans-content{font-size:14px;color:#e0f0e0;line-height:1.7;white-space:pre-wrap}
+#trans-loading{color:var(--amber);font-size:13px;display:none}
+#controls{background:rgba(0,0,0,0.3);padding:12px 20px;display:flex;align-items:center;gap:10px;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.1)}
+#btn-prev,#btn-next{background:var(--green);border:none;color:#fff;border-radius:8px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;transition:background 0.2s}
+#btn-prev:hover,#btn-next:hover{background:var(--green-mid)}
+#btn-prev:disabled{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.3);cursor:not-allowed}
+#btn-next{background:var(--orange)}
+#btn-next:hover{background:#c94510}
+#scene-dots{display:flex;gap:5px;flex:1;justify-content:center;flex-wrap:wrap}
+.sdot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.2);transition:background 0.3s;cursor:pointer}
+.sdot.active{background:var(--orange)}
+#scene-counter{font-size:11px;color:rgba(255,255,255,0.5);min-width:40px;text-align:right}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div id="header">
+  <div id="logo-area">
+    <svg width="140" height="44" viewBox="0 0 140 44">
+      <circle cx="22" cy="22" r="21" fill="#E8541A"/>
+      <circle cx="22" cy="22" r="17" fill="#F5A623"/>
+      <circle cx="22" cy="22" r="8" fill="#FFD060"/>
+      <line x1="22" y1="5" x2="22" y2="39" stroke="#E8541A" stroke-width="1.2" opacity="0.7"/>
+      <line x1="5" y1="22" x2="39" y2="22" stroke="#E8541A" stroke-width="1.2" opacity="0.7"/>
+      <line x1="9" y1="9" x2="35" y2="35" stroke="#E8541A" stroke-width="1.2" opacity="0.7"/>
+      <line x1="35" y1="9" x2="9" y2="35" stroke="#E8541A" stroke-width="1.2" opacity="0.7"/>
+      <text x="50" y="20" font-family="Arial" font-size="16" font-weight="900" fill="#2D6A2D">CHISLETT</text>
+      <text x="50" y="36" font-family="Arial" font-size="13" font-weight="700" fill="#2D6A2D">FARMS</text>
+    </svg>
+  </div>
+  <div id="lang-bar">
+    <button class="lang-btn active" onclick="setLang('en',this)">🇦🇺 English</button>
+    <button class="lang-btn" onclick="translateScene('vi',this)">🇻🇳 Tiếng Việt</button>
+    <button class="lang-btn" onclick="translateScene('ms',this)">🇲🇾 Bahasa Melayu</button>
+    <button class="lang-btn" onclick="translateScene('id',this)">🇮🇩 Bahasa Indonesia</button>
+    <button class="lang-btn" onclick="translateScene('sm',this)">🇼🇸 Gagana Samoa</button>
+  </div>
+</div>
+
+<div id="progress-wrap"><div id="progress-bar" style="width:8.3%"></div></div>
+
+<div id="scene-area">
+
+<div class="scene active" id="s1">
+  <button class="export-btn" onclick="exportScene(1)">Export Scene</button>
+  <div class="scene-tag">Scene 1 of 12</div>
+  <svg width="100%" height="120" viewBox="0 0 680 120" style="border-radius:12px;display:block">
+    <rect width="680" height="120" fill="#0d3320"/>
+    <circle cx="580" cy="35" r="26" fill="#F5A623" opacity="0.9"/>
+    <rect x="0" y="85" width="680" height="35" fill="#1D6A2D" opacity="0.5"/>
+    <rect x="60" y="42" width="95" height="60" rx="4" fill="#085041"/>
+    <polygon points="60,42 155,42 107,14" fill="#0F6E56"/>
+    <rect x="88" y="66" width="20" height="36" rx="3" fill="#9FE1CB"/>
+    <rect x="178" y="52" width="28" height="50" rx="4" fill="#085041"/>
+    <ellipse cx="192" cy="52" rx="14" ry="6" fill="#0F6E56"/>
+    <rect x="228" y="72" width="8" height="22" fill="#085041"/>
+    <ellipse cx="232" cy="65" rx="16" ry="14" fill="#1D9E75"/>
+    <circle cx="275" cy="65" r="8" fill="#9FE1CB"/>
+    <line x1="275" y1="73" x2="275" y2="94" stroke="#9FE1CB" stroke-width="2.5"/>
+    <line x1="266" y1="81" x2="284" y2="84" stroke="#9FE1CB" stroke-width="2"/>
+    <line x1="275" y1="94" x2="269" y2="108" stroke="#9FE1CB" stroke-width="2"/>
+    <line x1="275" y1="94" x2="281" y2="108" stroke="#9FE1CB" stroke-width="2"/>
+    <circle cx="312" cy="62" r="8" fill="#F5A623"/>
+    <line x1="312" y1="70" x2="312" y2="91" stroke="#F5A623" stroke-width="2.5"/>
+    <line x1="303" y1="78" x2="321" y2="81" stroke="#F5A623" stroke-width="2"/>
+    <line x1="312" y1="91" x2="306" y2="105" stroke="#F5A623" stroke-width="2"/>
+    <line x1="312" y1="91" x2="318" y2="105" stroke="#F5A623" stroke-width="2"/>
+    <rect x="350" y="18" width="200" height="24" rx="6" fill="rgba(255,255,255,0.1)"/>
+    <text x="450" y="35" text-anchor="middle" font-family="Arial" font-size="12" font-weight="800" fill="#9FE1CB" letter-spacing="1">SAFETY AND SITE INDUCTION</text>
+  </svg>
+  <div class="scene-title">Welcome to Chislett Farms</div>
+  <div class="scene-sub">We are glad you are here. This induction will help you understand how to stay safe, what the rules are, and who to talk to if you need help. Please watch and read carefully. There will be a sign-off at the end.</div>
+  <div class="good">This video is for all staff: full-time, part-time, casual, seasonal, and PALM scheme workers. The same rules apply to everyone on every site.</div>
+  <div class="tip">If you are unsure about anything at any time, please ask your supervisor. You will NOT get in trouble for asking questions. Asking keeps you and your workmates safe.</div>
+</div>
+
+<div class="scene" id="s2">
+  <button class="export-btn" onclick="exportScene(2)">Export Scene</button>
+  <div class="scene-tag">Scene 2 of 12</div>
+  <div class="scene-title">Our farms and facilities</div>
+  <div class="scene-sub">Chislett Farms operates across six sites in Victoria and New South Wales. No matter which site you work at, the same safety rules apply.</div>
+  <div class="sites-grid">
+    <div class="site-card"><div class="semoji">🌿</div><div class="sname">The Nursery</div><div class="sstate">VIC</div></div>
+    <div class="site-card"><div class="semoji">🍊</div><div class="sname">Kenley</div><div class="sstate">VIC</div></div>
+    <div class="site-card"><div class="semoji">🌾</div><div class="sname">Narrung</div><div class="sstate">VIC</div></div>
+    <div class="site-card"><div class="semoji">🌱</div><div class="sname">Goodnight</div><div class="sstate">NSW</div></div>
+    <div class="site-card"><div class="semoji">🚜</div><div class="sname">Tooleybuc</div><div class="sstate">NSW</div></div>
+    <div class="site-card"><div class="semoji">📦</div><div class="sname">Packing Shed</div><div class="sstate">VIC</div></div>
+  </div>
+  <div class="highlight">On your first day, your supervisor will show you around your specific site. Make sure you know where the first aid kit, fire extinguisher, and emergency assembly point are located.</div>
+  <div class="tip">If you move between sites, tell your supervisor. Some sites have different hazards and rules. Always check in when you arrive at a new site.</div>
+</div>
+
+<div class="scene" id="s3">
+  <button class="export-btn" onclick="exportScene(3)">Export Scene</button>
+  <div class="scene-tag">Scene 3 of 12</div>
+  <div class="scene-title">Rules every person must follow</div>
+  <div class="scene-sub">These rules apply to every site, every day, for every person on Chislett Farms property.</div>
+  <ul class="rule-list">
+    <li><span class="dot dg"></span>Sign in and sign out every day. Your supervisor must know you are on site.</li>
+    <li><span class="dot dg"></span>Wear the correct Personal Protective Equipment (PPE) for your task at all times.</li>
+    <li><span class="dot dg"></span>Follow all instructions from your supervisor. If you are unsure, stop and ask. You will not get in trouble for asking.</li>
+    <li><span class="dot dg"></span>Keep your work area clean and tidy. Pick up rubbish and store equipment safely.</li>
+    <li><span class="dot da"></span>Drive or operate vehicles at 10 km/h maximum speed on all farm sites.</li>
+    <li><span class="dot da"></span>Do not use your mobile phone while operating machinery or driving on site.</li>
+    <li><span class="dot da"></span>Only operate equipment or machinery that you have been trained and authorised to use.</li>
+    <li><span class="dot dr"></span>No alcohol, illegal drugs, or weapons are permitted on any Chislett Farms site at any time.</li>
+    <li><span class="dot dr"></span>Do not enter restricted or locked areas without permission from your supervisor.</li>
+    <li><span class="dot dr"></span>NO GLASS OR CONTAMINANTS of any kind are permitted in the Packing Shed, Nursery, or on any farm site. This includes glass bottles, broken containers, or foreign objects that could contaminate produce. This is a strict food safety rule.</li>
+  </ul>
+  <div class="highlight">Breaking these rules may result in disciplinary action, removal from site, or where required by law, reporting to authorities.</div>
+</div>
+
+<div class="scene" id="s4">
+  <button class="export-btn" onclick="exportScene(4)">Export Scene</button>
+  <div class="scene-tag">Scene 4 of 12</div>
+  <div class="scene-title">Know the hazards. Stay alert.</div>
+  <div class="scene-sub">A hazard is anything that can hurt you or someone else. These are the most common hazards at Chislett Farms.</div>
+  <div class="icon-grid">
+    <div class="icon-card"><div class="emoji">☀️</div><span>Heat and sun exposure</span></div>
+    <div class="icon-card"><div class="emoji">⚡</div><span>Overhead power lines</span></div>
+    <div class="icon-card"><div class="emoji">🚛</div><span>Forklifts and mobile plant</span></div>
+    <div class="icon-card"><div class="emoji">🧪</div><span>Chemicals and sprays</span></div>
+    <div class="icon-card"><div class="emoji">🐍</div><span>Snakes and insects</span></div>
+    <div class="icon-card"><div class="emoji">🔧</div><span>Heavy lifting and manual handling</span></div>
+    <div class="icon-card"><div class="emoji">💧</div><span>Wet and slippery surfaces</span></div>
+    <div class="icon-card"><div class="emoji">🌿</div><span>Trips and uneven ground</span></div>
+    <div class="icon-card"><div class="emoji">🌡️</div><span>Cold storage areas</span></div>
+    <div class="icon-card"><div class="emoji">🔌</div><span>Electrical equipment</span></div>
+    <div class="icon-card"><div class="emoji">🌬️</div><span>Dust and spray drift</span></div>
+    <div class="icon-card"><div class="emoji">🪜</div><span>Working at height</span></div>
+  </div>
+  <div class="highlight">If you see a hazard: stop, warn others nearby, and report it to your supervisor immediately. Do not assume someone else has already reported it.</div>
+  <div class="tip">If you are ever unsure whether something is safe, stop work and ask your supervisor. You will NOT get in trouble for stopping unsafe work. It is your right.</div>
+</div>
+
+<div class="scene" id="s5">
+  <button class="export-btn" onclick="exportScene(5)">Export Scene</button>
+  <div class="scene-tag">Scene 5 of 12</div>
+  <div class="scene-title">Working in the heat</div>
+  <div class="scene-sub">Farm work in hot weather can be dangerous. Heat illness can happen quickly, especially if you are new to the job or working on a very hot day.</div>
+  <ul class="rule-list">
+    <li><span class="dot dg"></span>Drink water regularly. At least one cup every 20 minutes when it is hot.</li>
+    <li><span class="dot dg"></span>Wear a hat, long sleeves, and sunscreen when working outdoors.</li>
+    <li><span class="dot dg"></span>Take shade breaks when your supervisor tells you to, or when you feel unwell.</li>
+    <li><span class="dot dg"></span>Tell your supervisor if you or a workmate feel dizzy, sick, confused, or stop sweating.</li>
+    <li><span class="dot da"></span>Do not work through heat illness symptoms. They can become life-threatening very quickly.</li>
+    <li><span class="dot da"></span>Check on new workers and PALM scheme workers during their first week. They may not be used to the heat yet.</li>
+  </ul>
+  <div class="highlight">Signs of heat illness: headache, dizziness, weakness, heavy sweating, nausea, or confusion. If someone collapses or stops making sense, call 000 immediately.</div>
+  <div class="tip">Supervisors: On days over 35 degrees Celsius, additional rest breaks and cool water must be provided. This is a legal requirement.</div>
+</div>
+
+<div class="scene" id="s6">
+  <button class="export-btn" onclick="exportScene(6)">Export Scene</button>
+  <div class="scene-tag">Scene 6 of 12</div>
+  <div class="scene-title">Working safely with chemicals</div>
+  <div class="scene-sub">Chislett Farms uses chemicals for crop protection and growing. These must be handled safely to protect you, your workmates, and our produce.</div>
+  <ul class="rule-list">
+    <li><span class="dot dg"></span>Only handle chemicals if you have been trained and authorised to do so.</li>
+    <li><span class="dot dg"></span>Always wear the PPE listed on the chemical label: gloves, mask, and eye protection.</li>
+    <li><span class="dot dg"></span>Read the label and Safety Data Sheet (SDS) before using any chemical. Ask your supervisor if you cannot read it.</li>
+    <li><span class="dot dg"></span>Never mix chemicals unless specifically instructed by your supervisor.</li>
+    <li><span class="dot dg"></span>Store chemicals in their correct, labelled containers in the locked chemical storage area only.</li>
+    <li><span class="dot da"></span>Never eat, drink, or smoke near chemicals or chemical storage areas.</li>
+    <li><span class="dot da"></span>Do not enter a recently sprayed area until the re-entry period has passed. Your supervisor will tell you when it is safe.</li>
+    <li><span class="dot dr"></span>If you spill a chemical or feel unwell after contact, tell your supervisor immediately and wash the affected area with water.</li>
+  </ul>
+  <div class="highlight">Chemical exposure can cause serious health problems. If you have any reaction to skin, eyes, or breathing, tell your supervisor right away and seek first aid.</div>
+</div>
+
+<div class="scene" id="s7">
+  <button class="export-btn" onclick="exportScene(7)">Export Scene</button>
+  <div class="scene-tag">Scene 7 of 12</div>
+  <div class="scene-title">Personal Protective Equipment</div>
+  <div class="scene-sub">PPE is equipment that protects your body from injury or illness. Chislett Farms provides the PPE you need. You must wear the correct PPE for your task, every time.</div>
+  <div class="ppe-grid">
+    <div class="ppe-item"><div class="emoji">⛑️</div><span>Hard hat: machinery and plant areas</span></div>
+    <div class="ppe-item"><div class="emoji">🥾</div><span>Steel-capped boots: all farm sites</span></div>
+    <div class="ppe-item"><div class="emoji">🥽</div><span>Eye protection: chemicals and machinery</span></div>
+    <div class="ppe-item"><div class="emoji">🧤</div><span>Gloves: chemicals, sharp tools, handling</span></div>
+    <div class="ppe-item"><div class="emoji">😷</div><span>Mask or respirator: spraying and dusty tasks</span></div>
+    <div class="ppe-item"><div class="emoji">🦺</div><span>Hi-vis vest: near vehicles and machinery</span></div>
+    <div class="ppe-item"><div class="emoji">🧴</div><span>Sunscreen: all outdoor work</span></div>
+    <div class="ppe-item"><div class="emoji">👒</div><span>Sun hat: outdoor work daily</span></div>
+    <div class="ppe-item"><div class="emoji">👂</div><span>Ear protection: loud machinery</span></div>
+  </div>
+  <div class="highlight">If your PPE is damaged, worn out, or does not fit properly, tell your supervisor. You must not work without the correct PPE. Replacement is always provided at no cost to you.</div>
+  <div class="tip">If you are unsure which PPE to wear for a task, ask your supervisor before you start. You will not get in trouble for asking.</div>
+</div>
+
+<div class="scene" id="s8">
+  <button class="export-btn" onclick="exportScene(8)">Export Scene</button>
+  <div class="scene-tag">Scene 8 of 12</div>
+  <div class="scene-title">Lifting and carrying safely</div>
+  <div class="scene-sub">Many farm injuries happen from lifting incorrectly. Always use safe lifting techniques to protect your back, shoulders, and knees.</div>
+  <ul class="step-list">
+    <li><span class="step-num">1</span>Plan before you lift. Is the load too heavy? Do you need help or a trolley?</li>
+    <li><span class="step-num">2</span>Stand close to the load. Keep your feet shoulder-width apart.</li>
+    <li><span class="step-num">3</span>Bend your knees, not your back. Keep your back straight.</li>
+    <li><span class="step-num">4</span>Hold the load close to your body. Grip it firmly.</li>
+    <li><span class="step-num">5</span>Lift slowly using your legs. Do not jerk or twist.</li>
+    <li><span class="step-num">6</span>If you need to turn, move your feet. Do not twist your back.</li>
+    <li><span class="step-num">7</span>Set the load down carefully, bending your knees again.</li>
+  </ul>
+  <div class="highlight">If a load is too heavy for one person, ask for help or use a trolley, pallet jack, or forklift. No load is worth injuring yourself over.</div>
+  <div class="tip">Report any pain or strain immediately, even if it seems minor. Injuries caught early heal faster and prevent serious long-term damage.</div>
+</div>
+
+<div class="scene" id="s9">
+  <button class="export-btn" onclick="exportScene(9)">Export Scene</button>
+  <div class="scene-tag">Scene 9 of 12</div>
+  <div class="scene-title">What to do in an emergency</div>
+  <div class="scene-sub">An emergency can happen at any time. Knowing what to do before it happens could save a life, including yours.</div>
+  <div style="background:rgba(226,75,74,0.15);border:2px solid #E24B4A;border-radius:10px;padding:12px;text-align:center;margin-bottom:4px">
+    <div style="font-size:11px;color:#ffa0a0;font-weight:700;letter-spacing:2px">EMERGENCY NUMBER</div>
+    <div style="font-size:42px;font-weight:900;color:#fff;line-height:1">000</div>
+    <div style="font-size:12px;color:#ffa0a0">Fire, Ambulance, Police</div>
+  </div>
+  <ul class="step-list">
+    <li><span class="step-num">1</span>Stay calm. Stop work immediately.</li>
+    <li><span class="step-num">2</span>Move yourself and others away from danger, only if it is safe to do so.</li>
+    <li><span class="step-num">3</span>Call 000. Tell them your location, what happened, and how many people are injured.</li>
+    <li><span class="step-num">4</span>Call or notify your supervisor straight away.</li>
+    <li><span class="step-num">5</span>Do not move an injured person unless they are in immediate further danger.</li>
+    <li><span class="step-num">6</span>Send someone to the site gate to direct emergency services in.</li>
+    <li><span class="step-num">7</span>Do not leave the scene unless told to by emergency services or your supervisor.</li>
+  </ul>
+  <div class="highlight">Know the location of: first aid kit, fire extinguisher, emergency assembly point, and nearest exit. Ask your supervisor to show you on Day 1.</div>
+</div>
+
+<div class="scene" id="s10">
+  <button class="export-btn" onclick="exportScene(10)">Export Scene</button>
+  <div class="scene-tag">Scene 10 of 12</div>
+  <div class="scene-title">See it. Report it. Fix it.</div>
+  <div class="scene-sub">All injuries, near-misses, and hazards must be reported, no matter how small. Early reporting prevents serious accidents.</div>
+  <ul class="rule-list">
+    <li><span class="dot dr"></span><strong style="color:#ffd4b8">Injury:</strong> Tell your supervisor immediately. Get first aid. Complete an incident report on the same day.</li>
+    <li><span class="dot dr"></span><strong style="color:#ffd4b8">Near-miss:</strong> Something almost went wrong but did not. Report it before the end of your shift.</li>
+    <li><span class="dot da"></span><strong style="color:#ffe4a0">Hazard:</strong> Something that could cause harm. Report to your supervisor as soon as you see it.</li>
+    <li><span class="dot da"></span><strong style="color:#ffe4a0">Property damage:</strong> Any damage to equipment, vehicles, buildings, or produce must be reported immediately.</li>
+    <li><span class="dot dg"></span><strong style="color:#b8f0d8">Illness:</strong> If you feel unwell at work, tell your supervisor. Do not come to work if you are sick with a fever, vomiting, or diarrhea.</li>
+  </ul>
+  <div class="good">You will NEVER get in trouble for reporting an incident, hazard, or near-miss. Reporting is part of your job and helps keep everyone safe. You are protected by law when you report safety issues.</div>
+  <div class="highlight">Confidential matters, safety concerns, or complaints can be raised directly with the HR and Quality Assurance Manager: Gretchen at gretchen@chislettfarms.com.au</div>
+</div>
+
+<div class="scene" id="s11">
+  <button class="export-btn" onclick="exportScene(11)">Export Scene</button>
+  <div class="scene-tag">Scene 11 of 12</div>
+  <div class="scene-title">Who to talk to</div>
+  <div class="scene-sub">You are not alone at Chislett Farms. These people are here to help you. There is no such thing as a silly question. Please ask.</div>
+  <div class="contact-grid">
+    <div class="contact-card">
+      <div class="cavatar" style="background:#085041;color:#9FE1CB">S</div>
+      <div class="ctitle">Your Supervisor</div>
+      <div class="cdesc">Your first point of contact for daily tasks, safety questions, instructions, and reporting. Ask them first if you are unsure about anything.</div>
+    </div>
+    <div class="contact-card">
+      <div class="cavatar" style="background:#3a2a00;color:#F5A623">SM</div>
+      <div class="ctitle">Site Manager</div>
+      <div class="cdesc">Oversees the whole site. Contact them if your supervisor is unavailable or you need a decision made at a higher level.</div>
+    </div>
+    <div class="contact-card">
+      <div class="cavatar" style="background:#3a0000;color:#ff9999">FA</div>
+      <div class="ctitle">First Aid Officer</div>
+      <div class="cdesc">Trained to help with any injury or health concern on site. Find out who your First Aid Officer is on your first day.</div>
+    </div>
+    <div class="contact-card">
+      <div class="cavatar" style="background:#1a0a3a;color:#c0a0ff">HR</div>
+      <div class="ctitle">HR and QA Manager: Gretchen</div>
+      <div class="cdesc">For pay, contracts, personal concerns, confidential matters, safety complaints, and quality assurance. Contact: gretchen@chislettfarms.com.au</div>
+    </div>
+  </div>
+  <div class="good">You have the legal right to stop unsafe work. You will not be penalised for raising a safety concern. If you feel you cannot speak to your supervisor, contact Gretchen directly and confidentially.</div>
+  <div class="tip">PALM scheme and seasonal workers: If you have concerns about your accommodation, pay, wellbeing, or working conditions, you can contact Gretchen confidentially. Your job is not at risk for asking for help.</div>
+</div>
+
+<div class="scene" id="s12">
+  <button class="export-btn" onclick="exportScene(12)">Export Scene</button>
+  <div class="scene-tag">Scene 12 of 12</div>
+  <div class="finish-check">✓</div>
+  <div class="scene-title">Induction complete</div>
+  <div class="scene-sub">Well done. You have completed the Chislett Farms Safety and Site Induction. Please fill in your details below to confirm you have watched and understood this induction.</div>
+  <ul class="rule-list" style="margin-bottom:12px">
+    <li><span class="dot dg"></span>I will wear my PPE for every task</li>
+    <li><span class="dot dg"></span>I will report all hazards, near-misses, and injuries</li>
+    <li><span class="dot dg"></span>I will follow my supervisor's instructions</li>
+    <li><span class="dot dg"></span>I will ask if I am unsure, and I know I will not get in trouble for asking</li>
+    <li><span class="dot dg"></span>I understand confidential concerns can go to Gretchen at gretchen@chislettfarms.com.au</li>
+  </ul>
+  <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:20px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center">
+    <div style="font-size:40px">📋</div>
+    <div style="font-size:16px;font-weight:700;color:#fff">Complete your sign-off form</div>
+    <div style="font-size:13px;color:#b8d8b8;line-height:1.6;max-width:480px">Click the button below to open the sign-off form. Fill in your name, site, role, and date. Your response will be recorded automatically.</div>
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSdoyvuUdxBAGGt3lnxH9q8V9V_dsWL5OxPFIAaSEsMI1BFn1Q/viewform" target="_blank" style="display:inline-block;background:#2D6A2D;color:#fff;font-size:15px;font-weight:700;padding:14px 32px;border-radius:10px;text-decoration:none">Open Sign-Off Form</a>
+    <div style="font-size:11px;color:#b8d8b8">The form will open in a new tab. Return here once you have submitted it.</div>
+  </div>
+</div>
+
+</div>
+
+<div id="controls">
+  <button id="btn-prev" disabled onclick="changeScene(-1)">Back</button>
+  <div id="scene-dots"></div>
+  <span id="scene-counter">1 / 12</span>
+  <button id="btn-next" onclick="changeScene(1)">Next</button>
+</div>
+
+</div>
+
+<div id="trans-overlay">
+  <div id="trans-box">
+    <button id="trans-close" onclick="closeTranslation()">X</button>
+    <div id="trans-title">Translation</div>
+    <div id="trans-loading">Translating, please wait...</div>
+    <div id="trans-content"></div>
+  </div>
+</div>
+
+<script>
+const TOTAL=12;
+let cur=1;
+const dotsEl=document.getElementById('scene-dots');
+for(let i=1;i<=TOTAL;i++){
+  const d=document.createElement('div');
+  d.className='sdot'+(i===1?' active':'');
+  d.id='dot'+i;
+  d.onclick=()=>goScene(i);
+  dotsEl.appendChild(d);
+}
+function goScene(n){
+  if(n<1||n>TOTAL)return;
+  document.getElementById('s'+cur).classList.remove('active');
+  document.getElementById('dot'+cur).classList.remove('active');
+  cur=n;
+  document.getElementById('s'+cur).classList.add('active');
+  document.getElementById('dot'+cur).classList.add('active');
+  document.getElementById('scene-counter').textContent=cur+' / '+TOTAL;
+  document.getElementById('progress-bar').style.width=(cur/TOTAL*100)+'%';
+  document.getElementById('btn-prev').disabled=cur===1;
+  document.getElementById('btn-next').textContent=cur===TOTAL?'Finish':'Next';
+  document.getElementById('scene-area').scrollTop=0;
+}
+function changeScene(d){goScene(cur+d);}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')changeScene(1);if(e.key==='ArrowLeft')changeScene(-1);});
+
+const langNames={vi:'Vietnamese (Tieng Viet)',ms:'Malay (Bahasa Malaysia)',id:'Indonesian (Bahasa Indonesia)',sm:'Samoan (Gagana Samoa)'};
+
+function setLang(l,btn){
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+async function translateScene(lang,btn){
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active','translating'));
+  btn.classList.add('translating');
+  const sceneEl=document.getElementById('s'+cur);
+  const textContent=sceneEl.innerText.replace(/Export Scene/g,'').trim().substring(0,1800);
+  const overlay=document.getElementById('trans-overlay');
+  const loading=document.getElementById('trans-loading');
+  const content=document.getElementById('trans-content');
+  document.getElementById('trans-title').textContent='Scene '+cur+' in '+langNames[lang];
+  loading.style.display='block';
+  content.textContent='';
+  overlay.style.display='flex';
+  try{
+    const res=await fetch('/.netlify/functions/translate',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({text:textContent,lang:lang,langName:langNames[lang]})
+    });
+    const data=await res.json();
+    const translated=data.translated||'Translation unavailable. Please try again.';
+    loading.style.display='none';
+    content.textContent=translated;
+  }catch(e){
+    loading.style.display='none';
+    content.textContent='Translation failed. Please check your connection and try again.';
+  }
+  btn.classList.remove('translating');
+}
+
+function closeTranslation(){
+  document.getElementById('trans-overlay').style.display='none';
+}
+
+function exportScene(n){
+  const el=document.getElementById('s'+n);
+  const text='CHISLETT FARMS INDUCTION: SCENE '+n+'\n'+'='.repeat(40)+'\n\n'+el.innerText.replace(/Export Scene/g,'').trim();
+  const blob=new Blob([text],{type:'text/plain'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='CF_Induction_Scene_'+n+'.txt';
+  document.body.appendChild(a);a.click();
+  document.body.removeChild(a);URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
