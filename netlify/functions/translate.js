@@ -10,6 +10,7 @@ exports.handler = async function(event) {
     headers: {
       'Content-Type': 'application/json',
       'x-api-key': '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',
+      'anthropic-beta': 'messages-2023-06-01',
       'anthropic-version': '2023-06-01'
     },
     body: JSON.stringify({
