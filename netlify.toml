@@ -1,2 +1,8 @@
 [build]
   functions = "netlify/functions"
+  publish = "."
+
+[[redirects]]
+  from = "/"
+  to = "/landing.html"
+  status = 200
