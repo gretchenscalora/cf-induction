@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chislett Farms Visitor Induction</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#1a3a1a;color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+:root{--green:#2D6A2D;--green-dark:#1a3a1a;--green-mid:#3a7a3a;--orange:#E8541A;--amber:#F5A623}
+#app{width:100%;max-width:760px;min-height:100vh;display:flex;flex-direction:column;background:#1a3a1a}
+#header{background:#fff;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--orange);flex-shrink:0}
+#visitor-badge{background:var(--orange);color:#fff;font-size:11px;font-weight:800;letter-spacing:1px;padding:5px 12px;border-radius:20px;text-transform:uppercase}
+#progress-wrap{background:rgba(255,255,255,0.1);height:4px;width:100%}
+#progress-bar{height:4px;background:var(--orange);transition:width 0.4s ease}
+#scene-area{flex:1;padding:16px 20px;display:flex;flex-direction:column;gap:12px;overflow-y:auto}
+.scene{display:none;flex-direction:column;gap:10px;animation:fadeIn 0.4s ease}
+.scene.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.scene-tag{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--amber)}
+.scene-title{font-size:24px;font-weight:800;color:#fff;line-height:1.2}
+.scene-sub{font-size:14px;color:#b8d8b8;line-height:1.6;max-width:640px}
+.highlight{background:rgba(232,84,26,0.15);border-left:3px solid var(--orange);border-radius:0 8px 8px 0;padding:10px 14px;font-size:13px;color:#ffd4b8;line-height:1.5}
+.tip{background:rgba(245,166,35,0.13);border-left:3px solid var(--amber);border-radius:0 8px 8px 0;padding:10px 14px;font-size:13px;color:#ffe4a0;line-height:1.5}
+.good{background:rgba(45,106,45,0.3);border-left:3px solid #5DCAA5;border-radius:0 8px 8px 0;padding:10px 14px;font-size:13px;color:#b8f0d8;line-height:1.5}
+.rule-list{list-style:none;display:flex;flex-direction:column;gap:7px}
+.rule-list li{display:flex;align-items:flex-start;gap:10px;background:rgba(255,255,255,0.06);border-radius:8px;padding:9px 12px;font-size:13px;color:#e0f0e0;line-height:1.4}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.dg{background:#5DCAA5}.da{background:var(--amber)}.dr{background:#E24B4A}
+.icon-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.icon-card{background:rgba(255,255,255,0.07);border-radius:10px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.icon-card .emoji{font-size:26px;line-height:1}
+.icon-card span{font-size:11px;color:#b8d8b8;font-weight:600}
+.step-list{list-style:none;display:flex;flex-direction:column;gap:7px}
+.step-list li{display:flex;align-items:flex-start;gap:10px;background:rgba(255,255,255,0.06);border-radius:8px;padding:9px 12px;font-size:13px;color:#e0f0e0;line-height:1.4}
+.step-num{width:24px;height:24px;border-radius:50%;background:var(--orange);color:#fff;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.finish-check{width:70px;height:70px;border-radius:50%;background:var(--green);border:3px solid #5DCAA5;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:36px}
+.big-rule{background:rgba(255,255,255,0.07);border-radius:12px;padding:14px;display:flex;align-items:flex-start;gap:14px}
+.big-rule .bricon{font-size:32px;flex-shrink:0;margin-top:2px}
+.big-rule .brtxt{font-size:13px;color:#e0f0e0;line-height:1.5}
+.big-rule .brtxt strong{color:#fff;font-size:14px;display:block;margin-bottom:3px}
+.sites-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.site-pill{background:rgba(255,255,255,0.07);border-radius:8px;padding:8px;text-align:center;font-size:12px;font-weight:700;color:#fff}
+.site-pill span{display:block;font-size:10px;color:var(--amber);font-weight:600;margin-top:2px}
+
+/* Form styles */
+.vform{display:flex;flex-direction:column;gap:10px;background:rgba(255,255,255,0.06);border-radius:12px;padding:16px}
+.vform label{font-size:12px;color:#b8d8b8;font-weight:600;margin-bottom:2px;display:block}
+.vform input,.vform select{background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);border-radius:7px;padding:9px 12px;font-size:14px;color:#fff;outline:none;width:100%}
+.vform input:focus,.vform select:focus{border-color:var(--green)}
+.vform input::placeholder{color:rgba(255,255,255,0.35)}
+.vform select option{background:#1a3a1a;color:#fff}
+.vbtn{background:var(--green);border:none;border-radius:8px;padding:12px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:background 0.2s;width:100%}
+.vbtn:hover{background:var(--green-mid)}
+.vbtn:disabled{background:#444;cursor:not-allowed}
+.vbtn.orange{background:var(--orange)}
+.vbtn.orange:hover{background:#c94510}
+.vmsg{font-size:13px;text-align:center;padding:10px;border-radius:7px;display:none;line-height:1.5}
+.vmsg.success{background:rgba(45,106,45,0.3);color:#b8f0d8;display:block}
+.vmsg.error{background:rgba(226,75,74,0.2);color:#ffa0a0;display:block}
+
+/* Visitor code display */
+.code-box{background:rgba(232,84,26,0.15);border:2px solid var(--orange);border-radius:12px;padding:16px;text-align:center}
+.code-box .code-label{font-size:11px;color:#ffd4b8;font-weight:700;letter-spacing:2px;margin-bottom:6px}
+.code-box .code-value{font-size:38px;font-weight:900;color:#fff;letter-spacing:6px;margin-bottom:6px}
+.code-box .code-note{font-size:12px;color:#ffd4b8;line-height:1.5}
+
+/* Tabs for sign-in/sign-out */
+.tab-bar{display:flex;gap:4px;background:rgba(255,255,255,0.06);border-radius:10px;padding:4px}
+.tab-btn{flex:1;background:none;border:none;color:#b8d8b8;font-size:13px;font-weight:600;padding:9px;border-radius:7px;cursor:pointer;transition:background 0.2s}
+.tab-btn.active{background:var(--green);color:#fff}
+
+#controls{background:rgba(0,0,0,0.3);padding:12px 20px;display:flex;align-items:center;gap:10px;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.1)}
+#btn-prev,#btn-next{background:var(--green);border:none;color:#fff;border-radius:8px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;transition:background 0.2s}
+#btn-prev:disabled{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.3);cursor:not-allowed}
+#btn-next{background:var(--orange)}
+#scene-dots{display:flex;gap:5px;flex:1;justify-content:center}
+.sdot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.2);transition:background 0.3s;cursor:pointer}
+.sdot.active{background:var(--orange)}
+#scene-counter{font-size:11px;color:rgba(255,255,255,0.5);min-width:40px;text-align:right}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div id="header">
+  <svg width="140" height="44" viewBox="0 0 140 44">
+    <circle cx="22" cy="22" r="21" fill="#E8541A"/>
+    <circle cx="22" cy="22" r="17" fill="#F5A623"/>
+    <circle cx="22" cy="22" r="8" fill="#FFD060"/>
+    <line x1="22" y1="5" x2="22" y2="39" stroke="#E8541A" stroke-width="1.2" opacity="0.7"/>
+    <line x1="5" y1="22" x2="39" y2="22" stroke="#E8541A" stroke-width="1.2" opacity="0.7"/>
+    <line x1="9" y1="9" x2="35" y2="35" stroke="#E8541A" stroke-width="1.2" opacity="0.7"/>
+    <line x1="35" y1="9" x2="9" y2="35" stroke="#E8541A" stroke-width="1.2" opacity="0.7"/>
+    <text x="50" y="20" font-family="Arial" font-size="16" font-weight="900" fill="#2D6A2D">CHISLETT</text>
+    <text x="50" y="36" font-family="Arial" font-size="13" font-weight="700" fill="#2D6A2D">FARMS</text>
+  </svg>
+  <div id="visitor-badge">Visitor Induction</div>
+</div>
+
+<div id="progress-wrap"><div id="progress-bar" style="width:14.2%"></div></div>
+
+<div id="scene-area">
+
+<!-- S1: Welcome -->
+<div class="scene active" id="s1">
+  <div class="scene-tag">Scene 1 of 7</div>
+  <svg width="100%" height="110" viewBox="0 0 680 110" style="border-radius:12px;display:block">
+    <rect width="680" height="110" fill="#0d3320"/>
+    <circle cx="580" cy="32" r="24" fill="#F5A623" opacity="0.9"/>
+    <rect x="0" y="78" width="680" height="32" fill="#1D6A2D" opacity="0.5"/>
+    <rect x="50" y="38" width="88" height="58" rx="4" fill="#085041"/>
+    <polygon points="50,38 138,38 94,12" fill="#0F6E56"/>
+    <rect x="78" y="62" width="18" height="34" rx="3" fill="#9FE1CB"/>
+    <rect x="165" y="48" width="26" height="48" rx="4" fill="#085041"/>
+    <ellipse cx="178" cy="48" rx="13" ry="5" fill="#0F6E56"/>
+    <circle cx="280" cy="48" r="9" fill="#F5A623"/>
+    <line x1="280" y1="57" x2="280" y2="82" stroke="#F5A623" stroke-width="2.5"/>
+    <line x1="268" y1="65" x2="292" y2="68" stroke="#F5A623" stroke-width="2"/>
+    <line x1="280" y1="82" x2="273" y2="98" stroke="#F5A623" stroke-width="2"/>
+    <line x1="280" y1="82" x2="287" y2="98" stroke="#F5A623" stroke-width="2"/>
+    <rect x="290" y="58" width="14" height="18" rx="2" fill="#fff" opacity="0.8"/>
+    <circle cx="320" cy="45" r="9" fill="#9FE1CB"/>
+    <line x1="320" y1="54" x2="320" y2="79" stroke="#9FE1CB" stroke-width="2.5"/>
+    <line x1="308" y1="62" x2="332" y2="65" stroke="#9FE1CB" stroke-width="2"/>
+    <line x1="320" y1="79" x2="313" y2="95" stroke="#9FE1CB" stroke-width="2"/>
+    <line x1="320" y1="79" x2="327" y2="95" stroke="#9FE1CB" stroke-width="2"/>
+    <rect x="360" y="14" width="220" height="22" rx="6" fill="rgba(255,255,255,0.1)"/>
+    <text x="470" y="30" text-anchor="middle" font-family="Arial" font-size="11" font-weight="800" fill="#9FE1CB" letter-spacing="1">VISITOR SITE INDUCTION</text>
+  </svg>
+  <div class="scene-title">Welcome to Chislett Farms</div>
+  <div class="scene-sub">This short induction is for all visitors to Chislett Farms sites, including auditors, contractors, tradespeople, delivery drivers, and any other guests. Please read each screen carefully before proceeding.</div>
+  <div class="sites-row">
+    <div class="site-pill">The Nursery<span>VIC</span></div>
+    <div class="site-pill">Kenley<span>VIC</span></div>
+    <div class="site-pill">Narrung<span>VIC</span></div>
+    <div class="site-pill">Goodnight<span>NSW</span></div>
+    <div class="site-pill">Tooleybuc<span>NSW</span></div>
+    <div class="site-pill">Packing Shed<span>VIC</span></div>
+  </div>
+  <div class="good">This induction applies across all six Chislett Farms sites. The same rules apply no matter which site you are visiting today.</div>
+</div>
+
+<!-- S2: Before You Go Anywhere -->
+<div class="scene" id="s2">
+  <div class="scene-tag">Scene 2 of 7</div>
+  <div class="scene-title">Before you go anywhere</div>
+  <div class="scene-sub">Every visitor must follow these requirements before entering any Chislett Farms site area.</div>
+  <div class="big-rule">
+    <div class="bricon">🧑</div>
+    <div class="brtxt"><strong>Stay with your Chislett Farms host at all times</strong>You must not move around the site unaccompanied. Your host is responsible for your safety. Do not wander into areas you have not been taken to.</div>
+  </div>
+  <div class="big-rule">
+    <div class="bricon">🦺</div>
+    <div class="brtxt"><strong>Wear hi-vis at all times on site</strong>A hi-vis vest must be worn as soon as you enter the site and kept on until you leave. Hi-vis vests are available at the site entrance. Ask your host if you need one.</div>
+  </div>
+  <div class="big-rule">
+    <div class="bricon">👟</div>
+    <div class="brtxt"><strong>Wear closed-toe shoes</strong>Thongs, sandals, and open-toe footwear are not permitted on any Chislett Farms site. If you are not wearing appropriate footwear you may be asked to wait at reception.</div>
+  </div>
+  <div class="big-rule">
+    <div class="bricon">📋</div>
+    <div class="brtxt"><strong>Complete your sign-in before entering</strong>All visitors must sign in and receive a visitor code before entering the site. You will use this code to sign out when you leave, even if you close this page.</div>
+  </div>
+  <div class="highlight">If you are unsure about anything before entering the site, please ask your host. Do not enter the site until you are clear on the rules.</div>
+</div>
+
+<!-- S3: On-Site Rules -->
+<div class="scene" id="s3">
+  <div class="scene-tag">Scene 3 of 7</div>
+  <div class="scene-title">Rules while you are on site</div>
+  <div class="scene-sub">These rules apply to all visitors for the duration of your time on any Chislett Farms property.</div>
+  <ul class="rule-list">
+    <li><span class="dot dg"></span>Follow all directions from your Chislett Farms host without exception.</li>
+    <li><span class="dot dg"></span>Stay on the paths and in areas your host has taken you to. Do not explore independently.</li>
+    <li><span class="dot dg"></span>Maximum vehicle speed on all sites is 10 km/h or as signed. Give way to pedestrians and farm machinery at all times.</li>
+    <li><span class="dot dg"></span>Park only in designated visitor parking areas as directed by your host.</li>
+    <li><span class="dot da"></span>Do not use your mobile phone while walking near machinery, vehicles, or active work areas.</li>
+    <li><span class="dot da"></span>Do not touch, operate, or interfere with any equipment, machinery, or produce unless specifically requested and supervised by your host.</li>
+    <li><span class="dot da"></span>Photography and video recording may only be conducted with prior permission from Chislett Farms management.</li>
+    <li><span class="dot dr"></span>No alcohol, illegal drugs, or weapons are permitted on any Chislett Farms site at any time.</li>
+    <li><span class="dot dr"></span>NO GLASS OR CONTAMINANTS of any kind are permitted in the Packing Shed, Nursery, or on any farm site. This is a strict food safety requirement. This includes glass drink bottles, broken items, or any foreign objects.</li>
+    <li><span class="dot dr"></span>Do not enter cold storage, chemical storage, or any locked or restricted area without explicit permission and supervision.</li>
+  </ul>
+</div>
+
+<!-- S4: Hazards -->
+<div class="scene" id="s4">
+  <div class="scene-tag">Scene 4 of 7</div>
+  <div class="scene-title">Be aware of these hazards</div>
+  <div class="scene-sub">Farm environments contain hazards that may not be obvious if you do not work here regularly. Please stay alert at all times.</div>
+  <div class="icon-grid">
+    <div class="icon-card"><div class="emoji">🚛</div><span>Moving forklifts and vehicles</span></div>
+    <div class="icon-card"><div class="emoji">☀️</div><span>Heat and sun exposure</span></div>
+    <div class="icon-card"><div class="emoji">🧪</div><span>Chemical storage areas</span></div>
+    <div class="icon-card"><div class="emoji">🐍</div><span>Snakes and insects</span></div>
+    <div class="icon-card"><div class="emoji">💧</div><span>Wet and slippery surfaces</span></div>
+    <div class="icon-card"><div class="emoji">🌿</div><span>Uneven ground and trips</span></div>
+    <div class="icon-card"><div class="emoji">⚡</div><span>Overhead power lines</span></div>
+    <div class="icon-card"><div class="emoji">🌡️</div><span>Cold storage areas</span></div>
+  </div>
+  <div class="highlight">If you see or encounter a hazard at any time, alert your host immediately. Do not attempt to deal with it yourself.</div>
+  <div class="tip">If you feel unwell at any point during your visit, tell your host straight away.</div>
+</div>
+
+<!-- S5: Emergency Procedures -->
+<div class="scene" id="s5">
+  <div class="scene-tag">Scene 5 of 7</div>
+  <div class="scene-title">In an emergency</div>
+  <div class="scene-sub">Please know what to do if something goes wrong during your visit.</div>
+  <div style="background:rgba(226,75,74,0.15);border:2px solid #E24B4A;border-radius:10px;padding:12px;text-align:center;margin-bottom:4px">
+    <div style="font-size:11px;color:#ffa0a0;font-weight:700;letter-spacing:2px">EMERGENCY NUMBER</div>
+    <div style="font-size:42px;font-weight:900;color:#fff;line-height:1">000</div>
+    <div style="font-size:12px;color:#ffa0a0">Fire, Ambulance, Police</div>
+  </div>
+  <ul class="step-list">
+    <li><span class="step-num">1</span>Stay calm and stay with your host.</li>
+    <li><span class="step-num">2</span>Follow your host's instructions immediately and without hesitation.</li>
+    <li><span class="step-num">3</span>If instructed to evacuate, proceed directly to the emergency assembly point.</li>
+    <li><span class="step-num">4</span>Do not return to collect belongings during an evacuation.</li>
+    <li><span class="step-num">5</span>If someone is injured, call 000 and notify your host immediately.</li>
+    <li><span class="step-num">6</span>Do not move an injured person unless they are in immediate further danger.</li>
+    <li><span class="step-num">7</span>Remain at the assembly point until given the all-clear by site management.</li>
+  </ul>
+  <div class="good">Your host will point out the emergency assembly point at the start of your visit. If they have not done this, please ask before entering the site.</div>
+  <div class="highlight">Confidential safety concerns can be raised with the HR and Quality Assurance Manager: Gretchen at gretchen@chislettfarms.com.au</div>
+</div>
+
+<!-- S6: Acknowledgement -->
+<div class="scene" id="s6">
+  <div class="scene-tag">Scene 6 of 7</div>
+  <div class="finish-check">✓</div>
+  <div class="scene-title">You have completed the induction</div>
+  <div class="scene-sub">Please confirm you have read and understood all sections by ticking each item below, then proceed to sign in.</div>
+  <ul class="rule-list" style="margin-bottom:4px">
+    <li><span class="dot dg"></span>I will stay with my Chislett Farms host at all times</li>
+    <li><span class="dot dg"></span>I will wear hi-vis and closed-toe shoes for my entire visit</li>
+    <li><span class="dot dg"></span>I will follow all site rules and my host's instructions</li>
+    <li><span class="dot dg"></span>I will not bring glass or contaminants onto any site</li>
+    <li><span class="dot dg"></span>I will drive at 10 km/h or as signed at all times</li>
+    <li><span class="dot dg"></span>I know to call 000 in an emergency and follow my host's instructions</li>
+  </ul>
+  <div class="tip">Click Next to complete your sign-in and receive your visitor code. You will need this code to sign out when you leave.</div>
+</div>
+
+<!-- S7: Sign In / Sign Out -->
+<div class="scene" id="s7">
+  <div class="scene-tag">Scene 7 of 7</div>
+  <div class="scene-title">Sign in and sign out</div>
+  <div class="scene-sub">Use the tabs below to sign in on arrival or sign out when you leave. If you closed this page, return here and use your visitor code to sign out.</div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tab-signin" onclick="switchTab('signin')">Sign In</button>
+    <button class="tab-btn" id="tab-signout" onclick="switchTab('signout')">Sign Out</button>
+  </div>
+
+  <!-- Sign In Panel -->
+  <div id="panel-signin">
+    <div id="signin-form-wrap">
+      <div class="vform">
+        <div><label>Full name *</label><input type="text" id="si-name" placeholder="Your full name"/></div>
+        <div><label>Company or organisation *</label><input type="text" id="si-company" placeholder="e.g. ABC Auditing, Self-employed"/></div>
+        <div><label>Purpose of visit *</label>
+          <select id="si-purpose">
+            <option value="">Select purpose</option>
+            <option>Audit</option>
+            <option>Contractor</option>
+            <option>Tradesperson</option>
+            <option>Delivery</option>
+            <option>Government or Regulatory Inspector</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div><label>Site you are visiting *</label>
+          <select id="si-site">
+            <option value="">Select site</option>
+            <option>The Nursery</option>
+            <option>Kenley</option>
+            <option>Narrung</option>
+            <option>Goodnight</option>
+            <option>Tooleybuc</option>
+            <option>Packing Shed</option>
+          </select>
+        </div>
+        <div><label>Host name (person who invited you) *</label><input type="text" id="si-host" placeholder="e.g. Gretchen Scalora"/></div>
+        <button class="vbtn orange" id="si-btn" onclick="submitSignIn()">Complete Sign In and Get My Visitor Code</button>
+        <div class="vmsg" id="si-msg"></div>
+      </div>
+    </div>
+    <div id="signin-success-wrap" style="display:none;display:flex;flex-direction:column;gap:12px">
+      <div class="code-box">
+        <div class="code-label">YOUR VISITOR CODE</div>
+        <div class="code-value" id="display-code">----</div>
+        <div class="code-note">Write this code down or take a screenshot. You will need it to sign out when you leave, even if you close this page.</div>
+      </div>
+      <div class="good">You are now signed in. Welcome to Chislett Farms. Please wait for your host before entering the site.</div>
+    </div>
+  </div>
+
+  <!-- Sign Out Panel -->
+  <div id="panel-signout" style="display:none">
+    <div class="vform">
+      <div><label>Enter your visitor code *</label><input type="text" id="so-code" placeholder="e.g. CF-4821" style="text-transform:uppercase;letter-spacing:3px;font-size:18px;font-weight:700"/></div>
+      <div id="so-name-wrap" style="display:none"><label>Your name (confirmation)</label><input type="text" id="so-name-display" disabled style="opacity:0.6"/></div>
+      <button class="vbtn orange" id="so-btn" onclick="submitSignOut()">Complete Sign Out</button>
+      <div class="vmsg" id="so-msg"></div>
+    </div>
+    <div id="signout-success-wrap" style="display:none">
+      <div class="good" style="font-size:14px;text-align:center;padding:16px">You have been successfully signed out. Thank you for visiting Chislett Farms. Please return your hi-vis vest to the site entrance.</div>
+    </div>
+  </div>
+
+</div>
+
+</div>
+
+<div id="controls">
+  <button id="btn-prev" disabled onclick="changeScene(-1)">Back</button>
+  <div id="scene-dots"></div>
+  <span id="scene-counter">1 / 7</span>
+  <button id="btn-next" onclick="changeScene(1)">Next</button>
+</div>
+
+</div>
+
+<script>
+const TOTAL=7;
+let cur=1;
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbw3zNO_g1QdZuHh_Zp9ijp31D2HtilSOHTdknCarmYxsSMLAIDHZB1njDffmdugLSARLQ/exec';
+
+const dotsEl=document.getElementById('scene-dots');
+for(let i=1;i<=TOTAL;i++){
+  const d=document.createElement('div');
+  d.className='sdot'+(i===1?' active':'');
+  d.id='dot'+i;
+  d.onclick=()=>goScene(i);
+  dotsEl.appendChild(d);
+}
+
+function goScene(n){
+  if(n<1||n>TOTAL)return;
+  document.getElementById('s'+cur).classList.remove('active');
+  document.getElementById('dot'+cur).classList.remove('active');
+  cur=n;
+  document.getElementById('s'+cur).classList.add('active');
+  document.getElementById('dot'+cur).classList.add('active');
+  document.getElementById('scene-counter').textContent=cur+' / '+TOTAL;
+  document.getElementById('progress-bar').style.width=(cur/TOTAL*100)+'%';
+  document.getElementById('btn-prev').disabled=cur===1;
+  document.getElementById('btn-next').textContent=cur===TOTAL?'Finish':'Next';
+  document.getElementById('scene-area').scrollTop=0;
+}
+function changeScene(d){goScene(cur+d);}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')changeScene(1);if(e.key==='ArrowLeft')changeScene(-1);});
+
+function switchTab(tab){
+  document.getElementById('tab-signin').classList.toggle('active', tab==='signin');
+  document.getElementById('tab-signout').classList.toggle('active', tab==='signout');
+  document.getElementById('panel-signin').style.display = tab==='signin'?'flex':'none';
+  document.getElementById('panel-signout').style.display = tab==='signout'?'block':'none';
+  document.getElementById('panel-signin').style.flexDirection = 'column';
+  document.getElementById('panel-signin').style.gap = '12px';
+}
+
+function generateCode(){
+  return 'CF' + Math.floor(1000+Math.random()*9000);
+}
+
+function now(){
+  return new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit',hour12:true});
+}
+
+function today(){
+  return new Date().toLocaleDateString('en-AU');
+}
+
+async function submitSignIn(){
+  const name=document.getElementById('si-name').value.trim();
+  const company=document.getElementById('si-company').value.trim();
+  const purpose=document.getElementById('si-purpose').value;
+  const site=document.getElementById('si-site').value;
+  const host=document.getElementById('si-host').value.trim();
+  const msg=document.getElementById('si-msg');
+  const btn=document.getElementById('si-btn');
+
+  if(!name||!company||!purpose||!site||!host){
+    msg.className='vmsg error';
+    msg.textContent='Please fill in all required fields before signing in.';
+    return;
+  }
+
+  btn.disabled=true;
+  btn.textContent='Signing in...';
+  msg.className='vmsg';
+
+  const code=generateCode();
+  const signinTime=now();
+  const date=today();
+
+  try{
+    const res=await fetch(SCRIPT_URL,{
+      method:'POST',
+      body:JSON.stringify({action:'signin',code,name,company,purpose,site,host,date,signinTime})
+    });
+    const data=await res.json();
+    if(data.success){
+      document.getElementById('display-code').textContent=code;
+      document.getElementById('signin-form-wrap').style.display='none';
+      document.getElementById('signin-success-wrap').style.display='flex';
+      document.getElementById('signin-success-wrap').style.flexDirection='column';
+      document.getElementById('signin-success-wrap').style.gap='12px';
+    } else {
+      throw new Error('Server error');
+    }
+  } catch(e){
+    msg.className='vmsg error';
+    msg.textContent='Sign in failed. Please check your connection and try again.';
+    btn.disabled=false;
+    btn.textContent='Complete Sign In and Get My Visitor Code';
+  }
+}
+
+async function submitSignOut(){
+  const code=document.getElementById('so-code').value.trim().toUpperCase();
+  const msg=document.getElementById('so-msg');
+  const btn=document.getElementById('so-btn');
+
+  if(!code){
+    msg.className='vmsg error';
+    msg.textContent='Please enter your visitor code.';
+    return;
+  }
+
+  btn.disabled=true;
+  btn.textContent='Signing out...';
+  msg.className='vmsg';
+
+  const signoutTime=now();
+
+  try{
+    const res=await fetch(SCRIPT_URL,{
+      method:'POST',
+      body:JSON.stringify({action:'signout',code,signoutTime})
+    });
+    const data=await res.json();
+    if(data.success){
+      document.getElementById('panel-signout').querySelector('.vform').style.display='none';
+      document.getElementById('signout-success-wrap').style.display='block';
+    } else {
+      msg.className='vmsg error';
+      msg.textContent='Visitor code not found. Please check your code and try again. Codes look like CF1234.';
+      btn.disabled=false;
+      btn.textContent='Complete Sign Out';
+    }
+  } catch(e){
+    msg.className='vmsg error';
+    msg.textContent='Sign out failed. Please check your connection and try again.';
+    btn.disabled=false;
+    btn.textContent='Complete Sign Out';
+  }
+}
+</script>
+</body>
+</html>
